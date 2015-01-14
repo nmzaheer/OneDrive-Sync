@@ -9,13 +9,20 @@ Go to the following URL and give consent to the app
 https://login.live.com/oauth20_authorize.srf?response_type=code&client_id=0000000044135BBF&scope=wl.basic+wl.skydrive_update+wl.offline_access&redirect_uri=https%3A%2F%2Flogin.live.com%2Foauth20_desktop.srf
 
 Copy the authentication code and paste it in the console
+Example:
+After you give consent, you will be redirected to the following URL
 
+https://login.live.com/oauth20_desktop.srf?code=ad3570b8-74be-238d-ef4d-f3e5fb4cdd03&lc=1033
+
+
+Copy the code i.e. ad3570b8-74be-238d-ef4d-f3e5fb4cdd03 and paste it in the console as follows
+
+python main.py --authorize ad3570b8-74be-238d-ef4d-f3e5fb4cdd03
 '''
 
 CLIENT_ID = u'0000000044135BBF'
 CLIENT_SECRET = u'WLNGheUBZYHjpJhratN1STpcyMSRPZ1d'
 REDIRECT_URI = u'https://login.live.com/oauth20_desktop.srf'
-AUTH_URI = u'https://login.live.com/oauth20_authorize.srf'
 OAUTH_URI = u'https://login.live.com/oauth20_token.srf'
 AUTH_CODE = u''
 API_URI = u'https://apis.live.net/v5.0/'
@@ -37,11 +44,15 @@ def upload(folderpath, files, dest):
 def authorize(code):
     token_load = {u'client_id':CLIENT_ID,u'client_secret':CLIENT_SECRET,u'code':code,u'redirect_uri':REDIRECT_URI,u'grant_type':u'authorization_code'}
     response = client.post(OAUTH_URI, data=token_load, verify=True)
-    print(response.content)
     r = json.loads(response.content.decode('utf-8'))
-    refresh_token = r['refresh_token']
-    with open('.token','w') as f:
-        f.write(refresh_token)
+    if 'error' in r.keys():
+        print(r['error_description'])
+        sys.exit(0)
+    else:
+        refresh_token = r['refresh_token']
+        with open('.token','w') as f:
+            f.write(refresh_token)
+        print("Authorization successful...")
 
 def authenticate():
     global TOKEN
@@ -51,6 +62,8 @@ def authenticate():
     token_load = {u'client_id':CLIENT_ID,u'client_secret':CLIENT_SECRET,u'refresh_token':REFRESH_TOKEN,u'redirect_uri':REDIRECT_URI,u'grant_type':u'refresh_token'}
     response = client.post(OAUTH_URI, data=token_load, verify=True)
     r = json.loads(response.content.decode('utf-8'))
+    if 'error' in r.keys():
+        print(r['error_description'])
     access_token = r['access_token']
     TOKEN = {u'access_token':access_token}
     refresh_token = r['refresh_token']
