@@ -20,7 +20,7 @@ API_URI = u'https://apis.live.net/v5.0/'
 
 def main():
     client = requests.Session()
-    AUTH_CODE = input(u"Enter the code here : ")
+    AUTH_CODE = raw_input(u"Enter the code here : ")
     token_load = {u'client_id':CLIENT_ID,u'client_secret':CLIENT_SECRET,u'code':AUTH_CODE,u'redirect_uri':REDIRECT_URI,u'grant_type':u'authorization_code'}
     response = client.post(OAUTH_URI, data=token_load, verify=True)
     r = response.json()
@@ -30,16 +30,16 @@ def main():
     response = client.get(API_URI+u'me/skydrive/files', params=token)
     r = response.json()
     folder_dict = {elem['name']:elem['id'] for elem in r['data']}
-    localfolder_path = os.path.expanduser('~/Downloads/Nuclear Energy/test')
+    localfolder_path = os.path.expanduser('~/Downloads/Power System')
     for filename in os.listdir(localfolder_path):
         filepath = localfolder_path + '/' + filename
         with open(filepath, 'rb') as f:
-            response = client.put(API_URI+folder_dict['Nuclear Energy']+'/files/'+filename, params=token, data=f)
+            response = client.put(API_URI+folder_dict['Power System']+'/files/'+filename, params=token, data=f)
             r = response.json()
             print(r['name']+' uploaded')
-    response = client.get(API_URI+folder_dict['Nuclear Energy']+'/files', params=token)
+    response = client.get(API_URI+folder_dict['Power System']+'/files', params=token)
     r = response.json()
-    print('\n\nThe following files are available in the Nuclear Energy')
+    print('\n\nThe following files are available in the Power System')
     for elem in r['data']:
         print(elem['name'])
 
